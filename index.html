@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalender Sunda Interaktif - Saka Sunda & Masehi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Noto Serif (untuk nuansa aksara/klasik) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sunda: {
+                            gold: '#D4AF37',
+                            amber: '#B8860B',
+                            dark: '#1C1917',
+                            bamboo: '#4A5D4E',
+                            earth: '#2D241E',
+                            sand: '#F5F2EB',
+                            card: '#FAF8F5'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Noto Serif"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #12100E;
+            background-image: radial-gradient(circle at 50% 0%, #2D241E 0%, #12100E 75%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .pattern-overlay {
+            background-image: radial-gradient(#D4AF37 0.75px, transparent 0.75px);
+            background-size: 24px 24px;
+            opacity: 0.05;
+        }
+        .glass-panel {
+            background: rgba(30, 26, 23, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FDF0A6 0%, #D4AF37 50%, #997A15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.12);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1C1917;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4A5D4E;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="text-stone-200 min-h-screen relative flex flex-col justify-between overflow-x-hidden selection:bg-sunda-gold selection:text-sunda-dark">
+
+    <!-- Background Decorative Pattern -->
+    <div class="fixed inset-0 pattern-overlay pointer-events-none"></div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-sunda-gold/20 px-4 py-3 sm:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sunda-gold to-sunda-amber flex items-center justify-center text-sunda-dark shadow-md font-serif font-bold text-xl">
+                    ᮞ
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold font-serif gold-gradient-text tracking-wide">Kalender Sunda</h1>
+                    <p class="text-xs text-stone-400">Penanggalan Saka Sunda & Masehi Live</p>
+                </div>
+            </div>
+
+            <!-- Jam Digital Real-time -->
+            <div class="flex items-center gap-3 bg-stone-900/80 px-4 py-2 rounded-xl border border-sunda-gold/30 gold-border-glow">
+                <i data-lucide="clock" class="w-4 h-4 text-sunda-gold animate-pulse"></i>
+                <div class="flex flex-col text-right sm:text-left">
+                    <span id="digital-clock" class="font-mono text-lg font-bold text-amber-200 tracking-wider">00:00:00 WIB</span>
+                    <span id="live-date-subtitle" class="text-[10px] text-stone-400 uppercase tracking-widest">Memuat Waktu...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 sm:px-8 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+
+        <!-- Sidebar Info: Hari Ini dalam Penanggalan Sunda -->
+        <div class="lg:col-span-4 space-y-6">
+            <!-- Today Highlight Card -->
+            <div class="glass-panel rounded-2xl p-6 gold-border-glow relative overflow-hidden">
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-sunda-gold/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
+                    <span class="text-xs font-semibold text-sunda-gold uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Poé Ayeuna (Hari Ini)
+                    </span>
+                    <button onclick="goToToday()" class="text-xs bg-sunda-gold/10 hover:bg-sunda-gold/20 text-sunda-gold px-2.5 py-1 rounded-lg transition border border-sunda-gold/30">
+                        Ke Hari Ini
+                    </button>
+                </div>
+
+                <div class="text-center py-3">
+                    <div id="today-day-sunda" class="text-3xl font-serif font-bold text-amber-100">---</div>
+                    <div id="today-pasaran" class="text-lg font-medium text-sunda-gold mt-1">---</div>
+                    <div id="today-masehi" class="text-sm text-stone-400 mt-2">---</div>
+                </div>
+
+                <!-- Sunda Date Badge -->
+                <div class="mt-4 bg-stone-900/90 rounded-xl p-4 border border-stone-800 space-y-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-stone-400">Tanggal Sunda:</span>
+                        <span id="today-sunda-date" class="font-semibold text-amber-200">---</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-stone-400">Bulan Sunda:</span>
+                        <span id="today-sunda-month" class="font-semibold text-amber-200">---</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-stone-400">Tahun Saka Sunda:</span>
+                        <span id="today-sunda-year" class="font-semibold text-sunda-gold">---</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm pt-2 border-t border-stone-800/60">
+                        <span class="text-stone-400">Neptu Hari & Pasaran:</span>
+                        <span id="today-neptu" class="font-bold text-amber-300">---</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informasi Filosofi & Rincian Saptawara / Pancawara -->
+            <div class="glass-panel rounded-2xl p-6 space-y-4">
+                <h3 class="text-md font-bold font-serif text-stone-200 flex items-center gap-2 border-b border-stone-800 pb-2">
+                    <i data-lucide="book-open" class="w-4 h-4 text-sunda-gold"></i> Pituduh Ngaran Poé (Nama Hari)
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80">
+                        <div class="font-semibold text-sunda-gold">Minggu / Radite</div>
+                        <div class="text-stone-400">Tungtung (Matahari)</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80">
+                        <div class="font-semibold text-sunda-gold">Senen / Soma</div>
+                        <div class="text-stone-400">Bulan</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80">
+                        <div class="font-semibold text-sunda-gold">Selasa / Anggara</div>
+                        <div class="text-stone-400">Salasa (Mars)</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80">
+                        <div class="font-semibold text-sunda-gold">Rebo / Buda</div>
+                        <div class="text-stone-400">Rebo (Merkurius)</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80">
+                        <div class="font-semibold text-sunda-gold">Kamis / Waspada</div>
+                        <div class="text-stone-400">Kemis (Jupiter)</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80">
+                        <div class="font-semibold text-sunda-gold">Jumaah / Sukra</div>
+                        <div class="text-stone-400">Jumaah (Venus)</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-stone-900/50 border border-stone-800/80 col-span-1 sm:col-span-2">
+                        <div class="font-semibold text-sunda-gold">Sabtu / Tumpak</div>
+                        <div class="text-stone-400">Saptu (Saturnus)</div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <h4 class="text-xs font-semibold text-stone-300 mb-2">Pancawara (Pasaran):</h4>
+                    <div class="flex flex-wrap gap-1.5 text-[11px]">
+                        <span class="px-2 py-1 rounded bg-amber-950/40 text-amber-300 border border-amber-800/40">Manis (Legi)</span>
+                        <span class="px-2 py-1 rounded bg-amber-950/40 text-amber-300 border border-amber-800/40">Pahing</span>
+                        <span class="px-2 py-1 rounded bg-amber-950/40 text-amber-300 border border-amber-800/40">Pon</span>
+                        <span class="px-2 py-1 rounded bg-amber-950/40 text-amber-300 border border-amber-800/40">Wage</span>
+                        <span class="px-2 py-1 rounded bg-amber-950/40 text-amber-300 border border-amber-800/40">Kliwon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Calendar View -->
+        <div class="lg:col-span-8 space-y-6">
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl">
+
+                <!-- Navigation Controls -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pb-4 border-b border-stone-800">
+                    <div>
+                        <h2 id="calendar-month-title" class="text-2xl font-bold font-serif gold-gradient-text">---</h2>
+                        <p id="calendar-sunda-month-title" class="text-xs text-sunda-gold/80 font-medium mt-0.5">---</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="p-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-sunda-gold transition border border-stone-800" title="Bulan Sebelumnya">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="goToToday()" class="px-3 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-xs font-semibold text-stone-300 transition border border-stone-800">
+                            Bulan Ini
+                        </button>
+                        <button onclick="changeMonth(1)" class="p-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-sunda-gold transition border border-stone-800" title="Bulan Berikutnya">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Day Headers (Saptawara) -->
+                <div class="grid grid-cols-7 gap-1 sm:gap-2 text-center mb-2">
+                    <div class="py-2 text-xs font-bold text-rose-400/90 bg-rose-950/20 rounded-lg">Ming / Radite</div>
+                    <div class="py-2 text-xs font-bold text-stone-300 bg-stone-900/40 rounded-lg">Sen / Soma</div>
+                    <div class="py-2 text-xs font-bold text-stone-300 bg-stone-900/40 rounded-lg">Sel / Anggara</div>
+                    <div class="py-2 text-xs font-bold text-stone-300 bg-stone-900/40 rounded-lg">Rab / Buda</div>
+                    <div class="py-2 text-xs font-bold text-stone-300 bg-stone-900/40 rounded-lg">Kam / Waspada</div>
+                    <div class="py-2 text-xs font-bold text-emerald-400/90 bg-emerald-950/20 rounded-lg">Jum / Sukra</div>
+                    <div class="py-2 text-xs font-bold text-stone-300 bg-stone-900/40 rounded-lg">Sab / Tumpak</div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 sm:gap-2">
+                    <!-- Dynamic Days Rendered via JS -->
+                </div>
+
+                <!-- Legend Indicator -->
+                <div class="mt-6 pt-4 border-t border-stone-800/80 flex flex-wrap items-center justify-between text-xs text-stone-400 gap-3">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-sunda-gold inline-block"></span>
+                            <span>Hari Ini</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full border border-sunda-gold/50 bg-stone-900 inline-block"></span>
+                            <span>Tanggal Masehi</span>
+                        </div>
+                    </div>
+                    <div class="text-[11px] italic text-stone-500">
+                        * Teks kecil di bawah tanggal Masehi menunjukkan Pasaran (Pancawara) & Tanggal Sunda
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Modal Card (Tampil saat tanggal diklik) -->
+            <div id="detail-card" class="hidden glass-panel rounded-2xl p-5 border border-sunda-gold/30 gold-border-glow transition-all">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-md font-bold font-serif text-sunda-gold flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4"></i> Rincian Tanggal Terpilih
+                    </h3>
+                    <button onclick="closeDetailCard()" class="text-stone-400 hover:text-white p-1">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="detail-card-body" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-stone-800 py-4 px-4 sm:px-8 mt-8 text-center text-xs text-stone-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p>© <span id="footer-year"></span> Kalender Sunda Digital. Wilujeng Ngalanggangkeun Budaya Sunda.</p>
+            <p class="text-stone-400">Siap di-host di <span class="text-sunda-gold font-semibold">Netlify</span></p>
+        </div>
+    </footer>
+
+    <!-- Logic Kalender & Konversi Sunda -->
+    <script>
+        // Data Referensi Kalender Sunda & Masehi
+        const SAPTAWARA = [
+            { sunda: "Radite / Tungtung", masehi: "Minggu", neptu: 5 },
+            { sunda: "Soma", masehi: "Senin", neptu: 4 },
+            { sunda: "Anggara / Salasa", masehi: "Selasa", neptu: 3 },
+            { sunda: "Buda / Rebo", masehi: "Rabu", neptu: 7 },
+            { sunda: "Waspada / Kemis", masehi: "Kamis", neptu: 8 },
+            { sunda: "Sukra / Jumaah", masehi: "Jumat", neptu: 6 },
+            { sunda: "Tumpak / Saptu", masehi: "Sabtu", neptu: 9 }
+        ];
+
+        const PANCAWARA = [
+            { nama: "Legi / Manis", neptu: 5 },
+            { nama: "Pahing", neptu: 9 },
+            { nama: "Pon", neptu: 7 },
+            { nama: "Wage", neptu: 4 },
+            { nama: "Kliwon", neptu: 8 }
+        ];
+
+        const BULAN_SUNDA = [
+            "Kasa (Kartika)",
+            "Karo (Margasira)",
+            "Katiga (Posya)",
+            "Kapat (Magha)",
+            "Kalima (Phalguna)",
+            "Kanem (Caitra)",
+            "Kapitu (Vaisakha)",
+            "Kawolu (Jyestha)",
+            "Kasanga (Asadha)",
+            "Kasadasa (Sravana)",
+            "Jhasta (Bhadrapada)",
+            "Sadha (Aswuji)"
+        ];
+
+        const BULAN_MASEHI = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+
+        // State Navigasi Kalender
+        let currentDate = new Date();
+        let viewYear = currentDate.getFullYear();
+        let viewMonth = currentDate.getMonth();
+
+        // 1. Inisialisasi Jam Digital Real-time
+        function updateDigitalClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('digital-clock').innerText = `${hours}:${minutes}:${seconds} WIB`;
+
+            const dayName = SAPTAWARA[now.getDay()].masehi;
+            const dateNum = now.getDate();
+            const monthName = BULAN_MASEHI[now.getMonth()];
+            const yearNum = now.getFullYear();
+
+            document.getElementById('live-date-subtitle').innerText = `${dayName}, ${dateNum} ${monthName} ${yearNum}`;
+        }
+
+        // 2. Perhitungan Pasaran (Pancawara) berdasarkan Julian Day Index
+        function getPancawara(date) {
+            // Anchor date: 1 Januari 1900 adalah Pahing (Index 1)
+            const originDate = new Date(1900, 0, 1);
+            const diffTime = Math.floor((date.getTime() - originDate.getTime()) / (1000 * 60 * 60 * 24));
+            // Index offset: 1900-01-01 -> Pahing (Index 1 di [Legi=0, Pahing=1, Pon=2, Wage=3, Kliwon=4])
+            let index = (diffTime + 1) % 5;
+            if (index < 0) index += 5;
+            return PANCAWARA[index];
+        }
+
+        // 3. Estimasi Perhitungan Penanggalan Saka Sunda
+        // Selisih Tahun Masehi ke Saka Sunda rata-rata -78 tahun
+        function getSundaInfo(date) {
+            const dayOfWeek = date.getDay();
+            const saptawaraObj = SAPTAWARA[dayOfWeek];
+            const pancawaraObj = getPancawara(date);
+
+            // Estimasi Bulan & Tanggal Sunda (Saka Sunda Surya)
+            // Awal tahun Kasa jatuh sekitar pertengahan Juni Masehi (Prangbakat / Solstice)
+            const year = date.getFullYear();
+            const sundaYear = year - 78; // Tahun Saka Sunda
+
+            // Penentuan Bulan Sunda Sederhana Berdasarkan Hari ke-n dalam Tahun
+            const startOfYear = new Date(year, 0, 0);
+            const diff = date - startOfYear;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+
+            // Pergeseran Offset Awal Tahun Sunda (sekitar pertengahan Juni / Hari ke 166)
+            let sundaMonthIndex = Math.floor(((dayOfYear + 195) % 365) / 30.4);
+            if (sundaMonthIndex >= 12) sundaMonthIndex = 11;
+            
+            const sundaDateNum = ((dayOfYear + 15) % 30) + 1;
+            const sundaMonthName = BULAN_SUNDA[sundaMonthIndex];
+
+            const neptuTotal = saptawaraObj.neptu + pancawaraObj.neptu;
+
+            return {
+                saptawara: saptawaraObj,
+                pancawara: pancawaraObj,
+                sundaYear: sundaYear,
+                sundaMonth: sundaMonthName,
+                sundaDate: sundaDateNum,
+                neptu: neptuTotal
+            };
+        }
+
+        // 4. Update Highlight Hari Ini di Sidebar
+        function updateTodaySidebar() {
+            const today = new Date();
+            const sundaInfo = getSundaInfo(today);
+
+            document.getElementById('today-day-sunda').innerText = sundaInfo.saptawara.sunda;
+            document.getElementById('today-pasaran').innerText = `Pasaran: ${sundaInfo.pancawara.nama}`;
+            document.getElementById('today-masehi').innerText = `${sundaInfo.saptawara.masehi}, ${today.getDate()} ${BULAN_MASEHI[today.getMonth()]} ${today.getFullYear()}`;
+            
+            document.getElementById('today-sunda-date').innerText = `Tanggal ${sundaInfo.sundaDate}`;
+            document.getElementById('today-sunda-month').innerText = sundaInfo.sundaMonth;
+            document.getElementById('today-sunda-year').innerText = `${sundaInfo.sundaYear} Saka`;
+            document.getElementById('today-neptu').innerText = `${sundaInfo.neptu} (${sundaInfo.saptawara.neptu} + ${sundaInfo.pancawara.neptu})`;
+        }
+
+        // 5. Render Grid Kalender Bulanan
+        function renderCalendar(year, month) {
+            const grid = document.getElementById('calendar-days-grid');
+            grid.innerHTML = '';
+
+            // Set Header Judul
+            document.getElementById('calendar-month-title').innerText = `${BULAN_MASEHI[month]} ${year}`;
+            
+            // Perkiraan Bulan Sunda di Bulan Masehi ini
+            const midMonthDate = new Date(year, month, 15);
+            const midSundaInfo = getSundaInfo(midMonthDate);
+            document.getElementById('calendar-sunda-month-title').innerText = `Mangsa / Bulan Sunda: ${midSundaInfo.sundaMonth} ${midSundaInfo.sundaYear} Saka`;
+
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+            const prevMonthLastDate = new Date(year, month, 0).getDate();
+
+            const today = new Date();
+
+            // Cell Kosong Bulan Sebelumnya
+            for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+                const prevDate = prevMonthLastDate - i;
+                const cell = document.createElement('div');
+                cell.className = 'min-h-[76px] p-1.5 rounded-xl bg-stone-950/20 text-stone-700 border border-stone-900/40 select-none opacity-40';
+                cell.innerHTML = `<span class="text-xs font-semibold">${prevDate}</span>`;
+                grid.appendChild(cell);
+            }
+
+            // Cell Hari Bulan Ini
+            for (let day = 1; day <= totalDaysInMonth; day++) {
+                const dateObj = new Date(year, month, day);
+                const dayOfWeek = dateObj.getDay();
+                const sundaInfo = getSundaInfo(dateObj);
+
+                const isToday = (
+                    day === today.getDate() &&
+                    month === today.getMonth() &&
+                    year === today.getFullYear()
+                );
+
+                const cell = document.createElement('div');
+                cell.onclick = () => showDetail(dateObj, sundaInfo);
+
+                let bgClass = "bg-stone-900/60 hover:bg-stone-800/80 border-stone-800/80";
+                let textClass = "text-stone-200";
+
+                if (dayOfWeek === 0) { // Minggu
+                    textClass = "text-rose-400 font-semibold";
+                } else if (dayOfWeek === 5) { // Jumat
+                    textClass = "text-emerald-300 font-semibold";
+                }
+
+                if (isToday) {
+                    bgClass = "bg-gradient-to-br from-sunda-amber/30 to-sunda-gold/20 border-sunda-gold shadow-lg shadow-sunda-gold/10 gold-border-glow";
+                }
+
+                cell.className = `min-h-[76px] p-2 rounded-xl border ${bgClass} transition cursor-pointer flex flex-col justify-between group relative overflow-hidden`;
+
+                cell.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-sm font-bold ${isToday ? 'text-sunda-gold' : textClass}">${day}</span>
+                        ${isToday ? '<span class="w-2 h-2 rounded-full bg-sunda-gold animate-ping"></span>' : ''}
+                    </div>
+                    <div class="mt-1">
+                        <div class="text-[10px] text-sunda-gold/90 font-medium truncate">${sundaInfo.pancawara.nama.split(' ')[0]}</div>
+                        <div class="text-[9px] text-stone-500 truncate">Saka ${sundaInfo.sundaDate}</div>
+                    </div>
+                `;
+
+                grid.appendChild(cell);
+            }
+        }
+
+        // 6. Tampilkan Modal Detail Klik Tanggal
+        function showDetail(date, sundaInfo) {
+            const detailCard = document.getElementById('detail-card');
+            const detailBody = document.getElementById('detail-card-body');
+
+            const masehiStr = `${SAPTAWARA[date.getDay()].masehi}, ${date.getDate()} ${BULAN_MASEHI[date.getMonth()]} ${date.getFullYear()}`;
+
+            detailBody.innerHTML = `
+                <div class="p-2.5 rounded-lg bg-stone-900/80 border border-stone-800">
+                    <span class="text-stone-400 block text-[10px]">Hari Masehi</span>
+                    <span class="font-bold text-stone-200">${masehiStr}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-stone-900/80 border border-stone-800">
+                    <span class="text-stone-400 block text-[10px]">Hari Sunda (Saptawara)</span>
+                    <span class="font-bold text-sunda-gold">${sundaInfo.saptawara.sunda}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-stone-900/80 border border-stone-800">
+                    <span class="text-stone-400 block text-[10px]">Pasaran (Pancawara)</span>
+                    <span class="font-bold text-amber-300">${sundaInfo.pancawara.nama}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-stone-900/80 border border-stone-800">
+                    <span class="text-stone-400 block text-[10px]">Saka Sunda</span>
+                    <span class="font-bold text-amber-200">${sundaInfo.sundaDate} ${sundaInfo.sundaMonth} ${sundaInfo.sundaYear}</span>
+                </div>
+            `;
+
+            detailCard.classList.remove('hidden');
+        }
+
+        function closeDetailCard() {
+            document.getElementById('detail-card').classList.add('hidden');
+        }
+
+        // Navigasi Bulan
+        function changeMonth(delta) {
+            viewMonth += delta;
+            if (viewMonth > 11) {
+                viewMonth = 0;
+                viewYear++;
+            } else if (viewMonth < 0) {
+                viewMonth = 11;
+                viewYear--;
+            }
+            renderCalendar(viewYear, viewMonth);
+        }
+
+        function goToToday() {
+            const now = new Date();
+            viewYear = now.getFullYear();
+            viewMonth = now.getMonth();
+            renderCalendar(viewYear, viewMonth);
+        }
+
+        // Initialize on Window Load
+        window.onload = function() {
+            lucide.createIcons();
+            
+            // Footer Year
+            document.getElementById('footer-year').innerText = new Date().getFullYear();
+
+            // Clock interval
+            updateDigitalClock();
+            setInterval(updateDigitalClock, 1000);
+
+            // Initial render
+            updateTodaySidebar();
+            renderCalendar(viewYear, viewMonth);
+        };
+    </script>
+</body>
+</html>
+```
