@@ -12,11 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-<!-- PWA Manifest & Theme -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script>
         tailwind.config = {
             theme: {
@@ -279,8 +275,9 @@
     <!-- Footer -->
     <footer class="glass-panel border-t border-stone-800 py-4 px-4 sm:px-8 mt-8 text-center text-xs text-stone-500">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <p>© <span id="footer-year"></span> Kalender Sunda Digital. Wilujeng Ngalanggangkeun Budaya Sunda.</p>
-            <p class="text-stone-400">Siap di-host di <span class="text-sunda-gold font-semibold">Netlify</span></p>
+            <p>© <span id="footer-year"></span> Kalender Sunda Digital. Wilujeng Ngalanggengkeun Budaya Sunda.</p>
+            <p>ayasunday/tayasalawasna</p>
+          <p class="text-stone-400">Siap di-host di <span class="text-sunda-gold font-semibold">Netlify</span></p>
         </div>
     </footer>
 
@@ -552,15 +549,6 @@
             renderCalendar(viewYear, viewMonth);
         };
     </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker terdaftar!'))
-        .catch((err) => console.log('Gagal daftar Service Worker:', err));
-    });
-  }
-</script>
 </body>
 </html>
 ```
